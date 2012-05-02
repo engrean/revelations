@@ -3,7 +3,7 @@ Revelations is my work around some text-mining stuff I am working on.
 To start with, I am working on an NER system that can train/tag tweets, comments, and
 articles. The idea is to start with a training set from Wikipedia, followed by twitter.
 
-I am working with a file I got from a co-worker who wrote a perl library to auto-classify
-articles and then pick out the sentences that contain those words, tagging them 
-appropriately. I will either get his permission to to add his work to this project or
-rewrite it myself as this part also fascinates me.
+I am working with a file I got from a co-worker who wrote a perl library to 
+auto-classify articles and then it picks out the sentences that contain those words, 
+tagging them appropriately. I will either get his permission to to add his work to 
+this project or rewrite it myself as this part also fascinates me.
