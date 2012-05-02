@@ -1,1 +1,9 @@
-The readme file
+Revelations is my work around some text-mining stuff.
+
+To start with, I am working on an NER system that can train/tag tweets, comments, and articles.
+The idea to start with a training set from Wikipedia. At some point, I'll put the code in there
+to auto-tag the content from Wikipedia. For now, it will be the responsibility to tag your own text.
+
+I am working with a file I got from a co-worker who wrote a perl library to auto-classify articles and then pick
+out the sentences that contain those words, tagging them appropriately. Maybe I can get his permission to 
+add the file and the Perl tagger. Until then, it'll be to the user to tag their own text.
