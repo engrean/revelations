@@ -69,16 +69,17 @@ public final class TaggedTokenizer extends Tokenizer {
     @Override
     public final boolean incrementToken() throws IOException {
         clearAttributes();
-        int length = 0;
-        int start = -1; // this variable is always initialized
-        int end = -1;
-        char[] buffer = termAtt.buffer();
+        TokenMetaData meta = new TokenMetaData();
+        meta.buffer = termAtt.buffer();
+        meta.start = -1;  // this variable is always initialized
+        meta.length = 0;
+        meta.end = -1;
         while (true) {
             if (bufferIndex >= dataLen) {
                 offset += dataLen;
                 if(!charUtils.fill(ioBuffer, input)) { // read supplementary char aware with CharacterUtils
                     dataLen = 0; // so next offset += dataLen won't decrement offset
-                    if (length > 0) {
+                    if (meta.length > 0) {
                         break;
                     } else {
                         finalOffset = correctOffset(offset);
@@ -97,38 +98,32 @@ public final class TaggedTokenizer extends Tokenizer {
 //            System.out.println(new String(UCharacter.toChars(c)) + "=> " + UCharacterCategory.toString(type));
 
             if (isPunctuationChar(type)){
-                if (length == 0) {                // start of token
-                    assert start == -1;
-                    start = offset + bufferIndex - charCount;
-                    end = start;
-                } else if (length >= buffer.length-1) { // check if a supplementary could run out of bounds
-                    buffer = termAtt.resizeBuffer(2+length); // make sure a supplementary fits in the buffer
-                }
-                end += charCount;
-                length += UCharacter.toChars(c, buffer, length); // buffer it, normalized
+                addChar(meta, meta.buffer, c, charCount);
                 break;
             }else if (isTokenChar(c)) {               // if it's a token char
-                if (length == 0) {                // start of token
-                    assert start == -1;
-                    start = offset + bufferIndex - charCount;
-                    end = start;
-                } else if (length >= buffer.length-1) { // check if a supplementary could run out of bounds
-                    buffer = termAtt.resizeBuffer(2+length); // make sure a supplementary fits in the buffer
-                }
-                end += charCount;
-                length += UCharacter.toChars(c, buffer, length); // buffer it, normalized
-                if (length >= MAX_WORD_LEN || isPunctuationChar(UCharacter.getType(nc))) // buffer overflow! make sure to check for >= surrogate pair could break == test
+                addChar(meta, meta.buffer, c, charCount);
+                if (meta.length >= MAX_WORD_LEN || isPunctuationChar(UCharacter.getType(nc))) // buffer overflow! make sure to check for >= surrogate pair could break == test
                     break;
-            } else if (length > 0){             // at non-Letter w/ chars
+            } else if (meta.length > 0){             // at non-Letter w/ chars
                 break;                           // return 'em
             }
         }
-
-        termAtt.setLength(length);
-        assert start != -1;
-        offsetAtt.setOffset(correctOffset(start), finalOffset = correctOffset(end));
+        termAtt.setLength(meta.length);
+        assert meta.start != -1;
+        offsetAtt.setOffset(correctOffset(meta.start), finalOffset = correctOffset(meta.end));
         return true;
+    }
 
+    protected void addChar(TokenMetaData meta, char[] buffer, int c, int charCount) {
+        if (meta.length == 0) {                // start of token
+            assert meta.start == -1;
+            meta.start = offset + bufferIndex - charCount;
+            meta.end = meta.start;
+        } else if (meta.length >= buffer.length-1) { // check if a supplementary could run out of bounds
+            buffer = termAtt.resizeBuffer(2+meta.length); // make sure a supplementary fits in the buffer
+        }
+        meta.end += charCount;
+        meta.length += UCharacter.toChars(c, buffer, meta.length); // buffer it, normalized
     }
 
     @Override
@@ -146,4 +141,12 @@ public final class TaggedTokenizer extends Tokenizer {
         finalOffset = 0;
         ioBuffer.reset(); // make sure to reset the IO buffer!!
     }
+
+    private class TokenMetaData{
+        private int length;
+        private int start = -1;
+        private int end = -1;
+        private char[] buffer;
+    }
+
 }
