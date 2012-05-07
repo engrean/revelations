@@ -11,13 +11,49 @@ import org.apache.lucene.analysis.tokenattributes.TermAttribute
 public class TaggedTokenizerTest extends Specification {
     TaggedTokenizer tokenizer;
 
+    def "English sentence with words, <TIMEX tags and spaces"(){
+        given:
+        String sentence = 'the brown fox jumped at <TIMEX TYPE="TIME">3:00 PM</TIMEX>.'
+
+        when:
+        List<String> actual = tokenize(sentence)
+        def expected = ['the', 'brown', 'fox', 'jumped', 'at', '<TIMEX TYPE="TIME">3:00 PM</TIMEX>', '.']
+
+        then:
+        expected == actual
+    }
+
+    def "English sentence with words, <NUMEX tags and spaces"(){
+        given:
+        String sentence = 'the brown fox is <NUMEX TYPE="MONEY">$12</NUMEX>.'
+
+        when:
+        List<String> actual = tokenize(sentence)
+        def expected = ['the', 'brown', 'fox', 'is', '<NUMEX TYPE="MONEY">$12</NUMEX>', '.']
+
+        then:
+        expected == actual
+    }
+
+    def "English sentence with words, <ENAMEX tags and spaces inside tag"(){
+        given:
+        String sentence = 'the brown fox, <ENAMEX TYPE="PERSON">Charlie Brown</ENAMEX>, eats rats.'
+
+        when:
+        List<String> actual = tokenize(sentence)
+        def expected = ['the', 'brown', 'fox', ',', '<ENAMEX TYPE="PERSON">Charlie Brown</ENAMEX>', ',', 'eats', 'rats', '.']
+
+        then:
+        expected == actual
+    }
+
     def "English sentence with words, <ENAMEX tags and spaces"(){
         given:
         String sentence = 'the brown fox, <ENAMEX TYPE="PERSON">Charly</ENAMEX>, eats rats.'
 
         when:
         List<String> actual = tokenize(sentence)
-        def expected = ['the', 'brown', 'fox', ',', 'Charly', ',', 'eats', 'rats', '.']
+        def expected = ['the', 'brown', 'fox', ',', '<ENAMEX TYPE="PERSON">Charly</ENAMEX>', ',', 'eats', 'rats', '.']
 
         then:
         expected == actual
