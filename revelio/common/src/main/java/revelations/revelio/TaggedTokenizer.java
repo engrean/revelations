@@ -107,42 +107,7 @@ public final class TaggedTokenizer extends Tokenizer {
 //                if (tokenHelper.charCount == 1) {
                 //Loop until you you know for sure it's an entity tag.
                 if (tokenHelper.chars[0] == '<') {//detect if it's a start tag or an end tag.
-                    StringBuilder token = new StringBuilder();
-                    token.appendCodePoint(tokenHelper.c);
-                    int index = bufferIndex;
-                    final TokenMetaData subMeta = new TokenMetaData(termAtt.buffer(), meta.start, meta.length, meta.end);
-                    while (true) {
-                        final TokenHelper subTokenHelper = new TokenHelper(index++);
-                        addChar(subMeta, meta.buffer, subTokenHelper.c, subTokenHelper.charCount);
-                        if (!meta.isPossibleEntityEnd && meta.isEntityStart &&
-                                subTokenHelper.chars[0] == '<' && subTokenHelper.nchars[0] == '/') {
-                            token.appendCodePoint(subTokenHelper.c);
-                            meta.isPossibleEntityEnd = true;
-                            meta.isEntityStart = false;
-                        } else if (meta.isPossibleEntityEnd && isTokenChar(subTokenHelper.c) && subTokenHelper.c == '>') {
-                            token.appendCodePoint(subTokenHelper.c);
-                            meta.isEntityEnd = true;
-                            meta.isPossibleEntityEnd = false;
-                            break;
-                        } else if (!meta.isEntityStart && !isTokenChar(subTokenHelper.c)) { //we get one try at this.
-                            String tagName = token.toString();
-                            if (entityTypes.contains(tagName)) {
-                                meta.isEntityStart = true;
-                                token.appendCodePoint(subTokenHelper.c);
-                            } else {
-                                break;
-                            }
-                        }else{
-                            token.appendCodePoint(subTokenHelper.c);
-                        }
-
-                    }
-                    if (meta.isEntityEnd) {
-                        meta.buffer = subMeta.buffer;
-                        meta.end = subMeta.end;
-                        meta.length = subMeta.length;
-                        bufferIndex += subMeta.length - 1;
-                    }
+                    lookForTag(meta, tokenHelper);
                     break;
                 }else if (tokenHelper.currentType == UCharacterCategory.MATH_SYMBOL){
                     break;
@@ -155,6 +120,45 @@ public final class TaggedTokenizer extends Tokenizer {
         assert meta.start != -1;
         offsetAtt.setOffset(correctOffset(meta.start), finalOffset = correctOffset(meta.end));
         return true;
+    }
+
+    private void lookForTag(TokenMetaData meta, TokenHelper tokenHelper) {
+        StringBuilder token = new StringBuilder();
+        token.appendCodePoint(tokenHelper.c);
+        int index = bufferIndex;
+        final TokenMetaData subMeta = new TokenMetaData(termAtt.buffer(), meta.start, meta.length, meta.end);
+        while (true) {
+            final TokenHelper subTokenHelper = new TokenHelper(index++);
+            addChar(subMeta, meta.buffer, subTokenHelper.c, subTokenHelper.charCount);
+            if (!meta.isPossibleEntityEnd && meta.isEntityStart &&
+                    subTokenHelper.chars[0] == '<' && subTokenHelper.nchars[0] == '/') {
+                token.appendCodePoint(subTokenHelper.c);
+                meta.isPossibleEntityEnd = true;
+                meta.isEntityStart = false;
+            } else if (meta.isPossibleEntityEnd && isTokenChar(subTokenHelper.c) && subTokenHelper.c == '>') {
+                token.appendCodePoint(subTokenHelper.c);
+                meta.isEntityEnd = true;
+                meta.isPossibleEntityEnd = false;
+                break;
+            } else if (!meta.isEntityStart && !isTokenChar(subTokenHelper.c)) { //we get one try at this.
+                String tagName = token.toString();
+                if (entityTypes.contains(tagName)) {
+                    meta.isEntityStart = true;
+                    token.appendCodePoint(subTokenHelper.c);
+                } else {
+                    break;
+                }
+            }else{
+                token.appendCodePoint(subTokenHelper.c);
+            }
+
+        }
+        if (meta.isEntityEnd) {
+            meta.buffer = subMeta.buffer;
+            meta.end = subMeta.end;
+            meta.length = subMeta.length;
+            bufferIndex += subMeta.length - 1;
+        }
     }
 
     protected void addChar(TokenMetaData meta, char[] buffer, int c, int charCount) {
