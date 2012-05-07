@@ -11,6 +11,54 @@ import org.apache.lucene.analysis.tokenattributes.TermAttribute
 public class TaggedTokenizerTest extends Specification {
     TaggedTokenizer tokenizer;
 
+    def "English sentence with less than mark, words, and spaces"(){
+        given:
+        String sentence = 'the brown<fox jumped at them.'
+
+        when:
+        List<String> actual = tokenize(sentence)
+        def expected = ['the', 'brown', '<', 'fox', 'jumped', 'at', 'them', '.']
+
+        then:
+        expected == actual
+    }
+
+    def "English sentence with greater than mark, words, and spaces"(){
+        given:
+        String sentence = 'the brown>fox jumped at them.'
+
+        when:
+        List<String> actual = tokenize(sentence)
+        def expected = ['the', 'brown', '>', 'fox', 'jumped', 'at', 'them', '.']
+
+        then:
+        expected == actual
+    }
+
+    def "English sentence with equals mark, words, and spaces"(){
+        given:
+        String sentence = 'the brown=fox jumped at them.'
+
+        when:
+        List<String> actual = tokenize(sentence)
+        def expected = ['the', 'brown', '=', 'fox', 'jumped', 'at', 'them', '.']
+
+        then:
+        expected == actual
+    }
+
+    def "English sentence with words, <TIMEX tags no space"(){
+        given:
+        String sentence = 'the brown fox jumped at<TIMEX TYPE="TIME">3:00 PM</TIMEX>.'
+
+        when:
+        List<String> actual = tokenize(sentence)
+        def expected = ['the', 'brown', 'fox', 'jumped', 'at', '<TIMEX TYPE="TIME">3:00 PM</TIMEX>', '.']
+
+        then:
+        expected == actual
+    }
+
     def "English sentence with words, <TIMEX tags and spaces"(){
         given:
         String sentence = 'the brown fox jumped at <TIMEX TYPE="TIME">3:00 PM</TIMEX>.'

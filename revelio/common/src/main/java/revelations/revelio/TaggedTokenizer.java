@@ -64,8 +64,8 @@ public final class TaggedTokenizer extends Tokenizer {
      */
     protected boolean isPunctuationChar(int type) {
         return ((type >= UCharacterCategory.DASH_PUNCTUATION &&
-                type <= UCharacterCategory.OTHER_PUNCTUATION
-        ) ||
+                type <= UCharacterCategory.OTHER_PUNCTUATION)
+          ||
                 (type >= UCharacterCategory.INITIAL_PUNCTUATION &&
                         type <= UCharacterCategory.FINAL_QUOTE_PUNCTUATION
                 ));
@@ -75,11 +75,7 @@ public final class TaggedTokenizer extends Tokenizer {
     public final boolean incrementToken() throws IOException {
         //TODO: Need to make this shorter.
         clearAttributes();
-        TokenMetaData meta = new TokenMetaData();
-        meta.buffer = termAtt.buffer();
-        meta.start = -1;  // this variable is always initialized
-        meta.length = 0;
-        meta.end = -1;
+        TokenMetaData meta = new TokenMetaData(termAtt.buffer(), -1, 0, -1);
         while (true) {
             if (bufferIndex >= dataLen) {
                 offset += dataLen;
@@ -96,51 +92,45 @@ public final class TaggedTokenizer extends Tokenizer {
                 bufferIndex = 0;
             }
             // use CharacterUtils here to support < 3.1 UTF-16 code unit behavior if the char based methods are gone
-            final int c = charUtils.codePointAt(ioBuffer.getBuffer(), bufferIndex);
-            final int nc = charUtils.codePointAt(ioBuffer.getBuffer(), bufferIndex + 1);
-            final char[] chars = UCharacter.toChars(c);
-            final char[] nchars = UCharacter.toChars(nc);
-            final int charCount = UCharacter.charCount(c);
-            final int ncharCount = UCharacter.charCount(nc);
-            bufferIndex += charCount;
-            int type = UCharacter.getType(c);
-//            System.out.println(new String(UCharacter.toChars(c)) + "=> " + UCharacterCategory.toString(type));
+            final TokenHelper tokenHelper = new TokenHelper(bufferIndex);
+            bufferIndex += tokenHelper.charCount;
 
-            //if math symbol, check for
-            if (isPunctuationChar(type) && !meta.isEntityStart) {
-                addChar(meta, meta.buffer, c, charCount);
+            if (!meta.isEntityStart && (isPunctuationChar(tokenHelper.currentType))) {
+                addChar(meta, meta.buffer, tokenHelper.c, tokenHelper.charCount);
                 break;
-            } else if (isTokenChar(c)) {               // if it's a token char
-                addChar(meta, meta.buffer, c, charCount);
-                if (meta.length >= MAX_WORD_LEN ||// buffer overflow! make sure to check for >= surrogate pair could break == test
-                        (!meta.isEntityStart && isPunctuationChar(UCharacter.getType(nc))))
+            } else if (isTokenChar(tokenHelper.c)) {               // if it's a token char
+                addChar(meta, meta.buffer, tokenHelper.c, tokenHelper.charCount);
+                if (meta.length >= MAX_WORD_LEN || // buffer overflow! make sure to check for >= surrogate pair could break == test
+                        (!meta.isEntityStart && (isPunctuationChar(UCharacter.getType(tokenHelper.nc)) || UCharacter.getType(tokenHelper.nc) == UCharacterCategory.MATH_SYMBOL)))
                     break;
-                if (charCount == 1) {
-                    if (chars[0] == '<') {//detect if it's a start tag or an end tag.
-                        if (ncharCount == 1 && nchars[0] == '/') {//found </
+                if (tokenHelper.charCount == 1) {
+                    //Loop until you you know for sure it's an entity tag.
+                    if (tokenHelper.chars[0] == '<') {//detect if it's a start tag or an end tag.
+                        if (tokenHelper.ncharCount == 1 && tokenHelper.nchars[0] == '/') {//found </
                             meta.isPossibleEntityEnd = true;
-                        } else if (ncharCount == 1) {
+                        } else if (tokenHelper.ncharCount == 1 && UCharacter.isUAlphabetic(tokenHelper.nc)) {
                             meta.isPossibleEntityStart = true;
+                        }else{
+                            break;
                         }
-                    }else if (meta.isPossibleEntityEnd && chars[0] == '>'){
+                    }else if (meta.isPossibleEntityEnd && tokenHelper.chars[0] == '>'){
                         meta.isEntityEnd = true;
                         meta.isEntityStart = false;
                         break;
+                    }else if (!meta.isEntityStart && UCharacter.getType(tokenHelper.c) == UCharacterCategory.MATH_SYMBOL){
+                        break;
                     }
                 }
-            } else if (meta.length > 0) {             // at non-Letter w/ chars
+            } else if (meta.length > 0) { // at non-Letter, non-punctuation, but possibly math symbol [<,=,>] w/ chars
                 if (meta.isPossibleEntityStart) {
                     String token = new String(ioBuffer.getBuffer(), meta.start, meta.length);
-                    if (meta.isEntityEnd) {
-                        if ('>' == meta.buffer[meta.length]) {
-                            break;
-                        }
+                    if (meta.isEntityEnd && '>' == meta.buffer[meta.length]) { // Found end of closing tag
+                        break;
                     } else if (!meta.isEntityStart && entityTypes.contains(token)) {
                         meta.isEntityStart = true;
                     }
-
                     if (meta.isEntityStart){
-                        addChar(meta, meta.buffer, c, charCount);
+                        addChar(meta, meta.buffer, tokenHelper.c, tokenHelper.charCount);
                     }
                 } else {
                     break;
@@ -190,6 +180,36 @@ public final class TaggedTokenizer extends Tokenizer {
         private boolean isPossibleEntityStart;
         private boolean isEntityEnd;
         private boolean isPossibleEntityEnd;
+
+        TokenMetaData(char[] b, int start, int length, int end){
+            this.buffer = b;
+            this.start = start;
+            this.end = end;
+            this.length = length;
+        }
+    }
+
+    private class TokenHelper{
+        final int c;
+        final int nc;
+        final char[] chars;
+        final char[] nchars;
+        final int charCount;
+        final int ncharCount;
+        final int currentType;
+        final int nextType;
+
+        public TokenHelper(int bufferIndex){
+            c = charUtils.codePointAt(ioBuffer.getBuffer(), bufferIndex);
+            nc =  charUtils.codePointAt(ioBuffer.getBuffer(), bufferIndex + 1);
+            chars = UCharacter.toChars(c);
+            nchars = UCharacter.toChars(nc);
+            charCount = UCharacter.charCount(c);
+            ncharCount = UCharacter.charCount(nc);
+            currentType = UCharacter.getType(c);
+            nextType = UCharacter.getType(nc);
+        }
+
     }
 
 }
