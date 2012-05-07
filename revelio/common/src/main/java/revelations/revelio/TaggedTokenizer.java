@@ -114,23 +114,17 @@ public final class TaggedTokenizer extends Tokenizer {
                     while (true) {
                         final TokenHelper subTokenHelper = new TokenHelper(index++);
                         addChar(subMeta, meta.buffer, subTokenHelper.c, subTokenHelper.charCount);
-                        if (!meta.isEntityStart && isTokenChar(subTokenHelper.c) && token.length() <= 6) {
-                            token.appendCodePoint(subTokenHelper.c);
-                        } else if (meta.isEntityStart && subTokenHelper.chars[0] != '<') {
-                            token.appendCodePoint(subTokenHelper.c);
-                        } else if (!meta.isPossibleEntityEnd && meta.isEntityStart &&
+                        if (!meta.isPossibleEntityEnd && meta.isEntityStart &&
                                 subTokenHelper.chars[0] == '<' && subTokenHelper.nchars[0] == '/') {
                             token.appendCodePoint(subTokenHelper.c);
                             meta.isPossibleEntityEnd = true;
                             meta.isEntityStart = false;
-                        } else if (meta.isPossibleEntityEnd && isTokenChar(subTokenHelper.c) && subTokenHelper.c != '>') {
-                            token.appendCodePoint(subTokenHelper.c);
                         } else if (meta.isPossibleEntityEnd && isTokenChar(subTokenHelper.c) && subTokenHelper.c == '>') {
                             token.appendCodePoint(subTokenHelper.c);
                             meta.isEntityEnd = true;
                             meta.isPossibleEntityEnd = false;
                             break;
-                        } else if (!isTokenChar(subTokenHelper.c)) {
+                        } else if (!meta.isEntityStart && !isTokenChar(subTokenHelper.c)) { //we get one try at this.
                             String tagName = token.toString();
                             if (entityTypes.contains(tagName)) {
                                 meta.isEntityStart = true;
@@ -138,7 +132,10 @@ public final class TaggedTokenizer extends Tokenizer {
                             } else {
                                 break;
                             }
+                        }else{
+                            token.appendCodePoint(subTokenHelper.c);
                         }
+
                     }
                     if (meta.isEntityEnd) {
                         meta.buffer = subMeta.buffer;
