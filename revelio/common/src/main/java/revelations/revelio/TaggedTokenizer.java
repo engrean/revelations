@@ -130,6 +130,7 @@ public final class TaggedTokenizer extends Tokenizer {
     }
 
     private void lookForTag(TokenMetaData meta, TokenHelper tokenHelper) {
+        //TODO: We shouldn't need a token. This is just me being lazy...
         StringBuilder token = new StringBuilder();
         token.appendCodePoint(tokenHelper.c);
         int index = bufferIndex;
