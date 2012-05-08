@@ -8,7 +8,7 @@ import static org.apache.lucene.analysis.tokenattributes.TypeAttribute.DEFAULT_T
 import static revelations.revelio.TaggedTokenizer.*;
 
 /**
- * @author hargravescw
+ * @author Christian Hargraves
  * Date: 5/3/12
  */
 public class TaggedTokenizerTest extends Specification {
@@ -223,7 +223,7 @@ public class TaggedTokenizerTest extends Specification {
 
     private List<TokenHelper> tokenize(String text) {
         List<TokenHelper> tokens = new ArrayList<TokenHelper>();
-        tokenizer = new TaggedTokenizer(Version.LUCENE_36, new StringReader(text))
+        tokenizer = new TaggedTokenizer(Version.LUCENE_CURRENT, new StringReader(text))
         TermAttribute termAtt = tokenizer.getAttribute(TermAttribute.class);
         TypeAttribute typeAtt = tokenizer.getAttribute(TypeAttribute.class);
         while (tokenizer.incrementToken()) {
@@ -233,21 +233,4 @@ public class TaggedTokenizerTest extends Specification {
         return tokens
     }
 
-    private class TokenHelper {
-        private String token;
-        private String type;
-
-        TokenHelper(token, type) {
-            this.token = token
-            this.type = type
-        }
-
-        public String toString() {
-            return "$token->$type";
-        }
-
-        public boolean equals(Object that) {
-            return (token.equals(that.token) && type.equals(that.type))
-        }
-    }
 }

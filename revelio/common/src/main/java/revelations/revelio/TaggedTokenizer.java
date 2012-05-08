@@ -16,7 +16,7 @@ import org.apache.lucene.util.Version;
 import org.apache.lucene.util.CharacterUtils.CharacterBuffer;
 
 /**
- * @author hargravescw
+ * @author Christian Hargraves
  *         Date: 5/3/12
  */
 public final class TaggedTokenizer extends Tokenizer {
