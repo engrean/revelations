@@ -4,8 +4,8 @@ import org.apache.lucene.util.Version
 import org.apache.lucene.analysis.tokenattributes.TermAttribute
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute
 
-import static org.apache.lucene.analysis.tokenattributes.TypeAttribute.DEFAULT_TYPE
-import static revelations.revelio.TaggedTokenizer.*;
+import static revelations.revelio.BilouTags.*
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
 /**
  * @author Christian Hargraves
@@ -13,6 +13,45 @@ import static revelations.revelio.TaggedTokenizer.*;
  */
 public class EntityTagFilterTest extends Specification {
 
+    def "ENAMEX type PERSON, using BIL and O"(){
+        given:
+        String sentence = 'the quick <ENAMEX TYPE="PERSON">Megan D. Fox</ENAMEX> is actually red.'
+
+        when:
+        List<TokenHelper> actual = tokenize(sentence)
+        def expected = [
+                new TokenHelper('the', OUTSIDE),
+                new TokenHelper('quick', OUTSIDE),
+                new TokenHelper('Megan', "${BEGIN}-PERSON"),
+                new TokenHelper('D.', "${INSIDE}-PERSON"),
+                new TokenHelper('Fox', "${LAST}-PERSON"),
+                new TokenHelper('is', OUTSIDE),
+                new TokenHelper('actually', OUTSIDE),
+                new TokenHelper('red', OUTSIDE),
+                new TokenHelper('.', OUTSIDE)]
+
+        then:
+        actual.equals(expected)
+    }
+
+    def "ENAMEX type PERSON, using U and O"(){
+        given:
+        String sentence = 'the quick <ENAMEX TYPE="PERSON">Fox</ENAMEX> is actually red.'
+
+        when:
+        List<TokenHelper> actual = tokenize(sentence)
+        def expected = [
+                new TokenHelper('the', OUTSIDE),
+                new TokenHelper('quick', OUTSIDE),
+                new TokenHelper('Fox', "${UNIT}-PERSON"),
+                new TokenHelper('is', OUTSIDE),
+                new TokenHelper('actually', OUTSIDE),
+                new TokenHelper('red', OUTSIDE),
+                new TokenHelper('.', OUTSIDE)]
+
+        then:
+        actual.equals(expected)
+    }
 
     def "What happens when there aren't any tags/entities"(){
         given:
@@ -21,30 +60,30 @@ public class EntityTagFilterTest extends Specification {
         when:
         List<TokenHelper> actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('the', DEFAULT_TYPE),
-                new TokenHelper('quick', DEFAULT_TYPE),
-                new TokenHelper('brown', DEFAULT_TYPE),
-                new TokenHelper('fox', DEFAULT_TYPE),
-                new TokenHelper('is', DEFAULT_TYPE),
-                new TokenHelper('actually', DEFAULT_TYPE),
-                new TokenHelper('red', DEFAULT_TYPE),
-                new TokenHelper('.', PUNCTUATION_TYPE)]
+                new TokenHelper('the', OUTSIDE),
+                new TokenHelper('quick', OUTSIDE),
+                new TokenHelper('brown', OUTSIDE),
+                new TokenHelper('fox', OUTSIDE),
+                new TokenHelper('is', OUTSIDE),
+                new TokenHelper('actually', OUTSIDE),
+                new TokenHelper('red', OUTSIDE),
+                new TokenHelper('.', OUTSIDE)]
 
         then:
-        expected == actual
+        actual.equals(expected)
     }
 
     private List<TokenHelper> tokenize(String text) {
         List<TokenHelper> tokens = new ArrayList<TokenHelper>();
         EntityTagFilter tokenizer = new EntityTagFilter(new TaggedTokenizer(Version.LUCENE_CURRENT, new StringReader(text)))
-        TermAttribute termAtt = tokenizer.getAttribute(TermAttribute.class);
-        TypeAttribute typeAtt = tokenizer.getAttribute(TypeAttribute.class);
+        CharTermAttribute termAtt = tokenizer.getAttribute(CharTermAttribute.class);
+        EntityAttribute entityAtt = tokenizer.getAttribute(EntityAttribute.class);
         while (tokenizer.incrementToken()) {
-            TokenHelper token = new TokenHelper(termAtt.term(), typeAtt.type())
+            String term = termAtt.subSequence(0, termAtt.length());
+            TokenHelper token = new TokenHelper(term, (EntityAttribute)entityAtt.clone())
             tokens.add(token);
         }
         return tokens
     }
-
 
 }

@@ -2,10 +2,9 @@ package revelations.revelio;
 
 import spock.lang.Specification
 import org.apache.lucene.util.Version
-import org.apache.lucene.analysis.tokenattributes.TermAttribute
-import org.apache.lucene.analysis.tokenattributes.TypeAttribute
 import static org.apache.lucene.analysis.tokenattributes.TypeAttribute.DEFAULT_TYPE;
-import static revelations.revelio.TaggedTokenizer.*;
+import static revelations.revelio.BilouTags.*
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
 /**
  * @author Christian Hargraves
@@ -21,17 +20,17 @@ public class TaggedTokenizerTest extends Specification {
         when:
         List actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('the', DEFAULT_TYPE),
-                new TokenHelper('brown', DEFAULT_TYPE),
-                new TokenHelper('<', PUNCTUATION_TYPE),
-                new TokenHelper('fox', DEFAULT_TYPE),
-                new TokenHelper('jumped', DEFAULT_TYPE),
-                new TokenHelper('at', DEFAULT_TYPE),
-                new TokenHelper('them', DEFAULT_TYPE),
-                new TokenHelper('.', PUNCTUATION_TYPE)]
+                new TokenHelper('the', OUTSIDE),
+                new TokenHelper('brown', OUTSIDE),
+                new TokenHelper('<', OUTSIDE),
+                new TokenHelper('fox', OUTSIDE),
+                new TokenHelper('jumped', OUTSIDE),
+                new TokenHelper('at', OUTSIDE),
+                new TokenHelper('them', OUTSIDE),
+                new TokenHelper('.', OUTSIDE)]
 
         then:
-        expected == actual
+        actual.equals(expected)
     }
 
     def "English sentence with greater than mark, words, and spaces"() {
@@ -41,17 +40,17 @@ public class TaggedTokenizerTest extends Specification {
         when:
         List actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('the', DEFAULT_TYPE),
-                new TokenHelper('brown', DEFAULT_TYPE),
-                new TokenHelper('>', PUNCTUATION_TYPE),
-                new TokenHelper('fox', DEFAULT_TYPE),
-                new TokenHelper('jumped', DEFAULT_TYPE),
-                new TokenHelper('at', DEFAULT_TYPE),
-                new TokenHelper('them', DEFAULT_TYPE),
-                new TokenHelper('.', PUNCTUATION_TYPE)]
+                new TokenHelper('the', OUTSIDE),
+                new TokenHelper('brown', OUTSIDE),
+                new TokenHelper('>', OUTSIDE),
+                new TokenHelper('fox', OUTSIDE),
+                new TokenHelper('jumped', OUTSIDE),
+                new TokenHelper('at', OUTSIDE),
+                new TokenHelper('them', OUTSIDE),
+                new TokenHelper('.', OUTSIDE)]
 
         then:
-        expected == actual
+        actual.equals(expected)
     }
 
     def "English sentence with equals mark, words, and spaces"() {
@@ -61,17 +60,17 @@ public class TaggedTokenizerTest extends Specification {
         when:
         List actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('the', DEFAULT_TYPE),
-                new TokenHelper('brown', DEFAULT_TYPE),
-                new TokenHelper('=', PUNCTUATION_TYPE),
-                new TokenHelper('fox', DEFAULT_TYPE),
-                new TokenHelper('jumped', DEFAULT_TYPE),
-                new TokenHelper('at', DEFAULT_TYPE),
-                new TokenHelper('them', DEFAULT_TYPE),
-                new TokenHelper('.', PUNCTUATION_TYPE)]
+                new TokenHelper('the', OUTSIDE),
+                new TokenHelper('brown', OUTSIDE),
+                new TokenHelper('=', OUTSIDE),
+                new TokenHelper('fox', OUTSIDE),
+                new TokenHelper('jumped', OUTSIDE),
+                new TokenHelper('at', OUTSIDE),
+                new TokenHelper('them', OUTSIDE),
+                new TokenHelper('.', OUTSIDE)]
 
         then:
-        expected == actual
+        actual.equals(expected)
     }
 
     def "English sentence with words, <TIMEX tags no space"() {
@@ -81,16 +80,16 @@ public class TaggedTokenizerTest extends Specification {
         when:
         List actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('the', DEFAULT_TYPE),
-                new TokenHelper('brown', DEFAULT_TYPE),
-                new TokenHelper('fox', DEFAULT_TYPE),
-                new TokenHelper('jumped', DEFAULT_TYPE),
-                new TokenHelper('at', DEFAULT_TYPE),
+                new TokenHelper('the', OUTSIDE),
+                new TokenHelper('brown', OUTSIDE),
+                new TokenHelper('fox', OUTSIDE),
+                new TokenHelper('jumped', OUTSIDE),
+                new TokenHelper('at', OUTSIDE),
                 new TokenHelper('<TIMEX TYPE="TIME">3:00 PM</TIMEX>', ENTITY_TYPE),
-                new TokenHelper('.', PUNCTUATION_TYPE)]
+                new TokenHelper('.', OUTSIDE)]
 
         then:
-        expected == actual
+        actual.equals(expected)
     }
 
     def "English sentence with words, <TIMEX tags and spaces"() {
@@ -100,16 +99,16 @@ public class TaggedTokenizerTest extends Specification {
         when:
         List actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('the', DEFAULT_TYPE),
-                new TokenHelper('brown', DEFAULT_TYPE),
-                new TokenHelper('fox', DEFAULT_TYPE),
-                new TokenHelper('jumped', DEFAULT_TYPE),
-                new TokenHelper('at', DEFAULT_TYPE),
+                new TokenHelper('the', OUTSIDE),
+                new TokenHelper('brown', OUTSIDE),
+                new TokenHelper('fox', OUTSIDE),
+                new TokenHelper('jumped', OUTSIDE),
+                new TokenHelper('at', OUTSIDE),
                 new TokenHelper('<TIMEX TYPE="TIME">3:00 PM</TIMEX>', ENTITY_TYPE),
-                new TokenHelper('.', PUNCTUATION_TYPE)]
+                new TokenHelper('.', OUTSIDE)]
 
         then:
-        expected == actual
+        actual.equals(expected)
     }
 
     def "English sentence with words, <NUMEX tags and spaces"() {
@@ -119,15 +118,15 @@ public class TaggedTokenizerTest extends Specification {
         when:
         List actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('the', DEFAULT_TYPE),
-                new TokenHelper('brown', DEFAULT_TYPE),
-                new TokenHelper('fox', DEFAULT_TYPE),
-                new TokenHelper('is', DEFAULT_TYPE),
+                new TokenHelper('the', OUTSIDE),
+                new TokenHelper('brown', OUTSIDE),
+                new TokenHelper('fox', OUTSIDE),
+                new TokenHelper('is', OUTSIDE),
                 new TokenHelper('<NUMEX TYPE="MONEY">$12</NUMEX>', ENTITY_TYPE),
-                new TokenHelper('.', PUNCTUATION_TYPE)]
+                new TokenHelper('.', OUTSIDE)]
 
         then:
-        expected == actual
+        actual.equals(expected)
     }
 
     def "English sentence with words, <ENAMEX tags and spaces inside tag"() {
@@ -137,18 +136,18 @@ public class TaggedTokenizerTest extends Specification {
         when:
         List actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('the', DEFAULT_TYPE),
-                new TokenHelper('brown', DEFAULT_TYPE),
-                new TokenHelper('fox', DEFAULT_TYPE),
-                new TokenHelper(',', PUNCTUATION_TYPE),
+                new TokenHelper('the', OUTSIDE),
+                new TokenHelper('brown', OUTSIDE),
+                new TokenHelper('fox', OUTSIDE),
+                new TokenHelper(',', OUTSIDE),
                 new TokenHelper('<ENAMEX TYPE="PERSON">Charlie Brown</ENAMEX>', ENTITY_TYPE),
-                new TokenHelper(',', PUNCTUATION_TYPE),
-                new TokenHelper('eats', DEFAULT_TYPE),
-                new TokenHelper('rats', DEFAULT_TYPE),
-                new TokenHelper('.', PUNCTUATION_TYPE)]
+                new TokenHelper(',', OUTSIDE),
+                new TokenHelper('eats', OUTSIDE),
+                new TokenHelper('rats', OUTSIDE),
+                new TokenHelper('.', OUTSIDE)]
 
         then:
-        expected == actual
+        actual.equals(expected)
     }
 
     def "English sentence with words, <ENAMEX tags and spaces"() {
@@ -158,18 +157,18 @@ public class TaggedTokenizerTest extends Specification {
         when:
         List actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('the', DEFAULT_TYPE),
-                new TokenHelper('brown', DEFAULT_TYPE),
-                new TokenHelper('fox', DEFAULT_TYPE),
-                new TokenHelper(',', PUNCTUATION_TYPE),
+                new TokenHelper('the', OUTSIDE),
+                new TokenHelper('brown', OUTSIDE),
+                new TokenHelper('fox', OUTSIDE),
+                new TokenHelper(',', OUTSIDE),
                 new TokenHelper('<ENAMEX TYPE="PERSON">Charly</ENAMEX>', ENTITY_TYPE),
-                new TokenHelper(',', PUNCTUATION_TYPE),
-                new TokenHelper('eats', DEFAULT_TYPE),
-                new TokenHelper('rats', DEFAULT_TYPE),
-                new TokenHelper('.', PUNCTUATION_TYPE)]
+                new TokenHelper(',', OUTSIDE),
+                new TokenHelper('eats', OUTSIDE),
+                new TokenHelper('rats', OUTSIDE),
+                new TokenHelper('.', OUTSIDE)]
 
         then:
-        expected == actual
+        actual.equals(expected)
     }
 
     def "English sentence with words, punctuation and spaces"() {
@@ -179,16 +178,16 @@ public class TaggedTokenizerTest extends Specification {
         when:
         List actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('the', DEFAULT_TYPE),
-                new TokenHelper('(', PUNCTUATION_TYPE),
-                new TokenHelper('brown', DEFAULT_TYPE),
-                new TokenHelper(')', PUNCTUATION_TYPE),
-                new TokenHelper(',', PUNCTUATION_TYPE),
-                new TokenHelper('fox', DEFAULT_TYPE),
-                new TokenHelper('!', PUNCTUATION_TYPE)]
+                new TokenHelper('the', OUTSIDE),
+                new TokenHelper('(', OUTSIDE),
+                new TokenHelper('brown', OUTSIDE),
+                new TokenHelper(')', OUTSIDE),
+                new TokenHelper(',', OUTSIDE),
+                new TokenHelper('fox', OUTSIDE),
+                new TokenHelper('!', OUTSIDE)]
 
         then:
-        expected == actual
+        actual.equals(expected)
     }
 
     def "English sentence with only words and spaces"() {
@@ -198,12 +197,12 @@ public class TaggedTokenizerTest extends Specification {
         when:
         List actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('the', DEFAULT_TYPE),
-                new TokenHelper('brown', DEFAULT_TYPE),
-                new TokenHelper('fox', DEFAULT_TYPE)]
+                new TokenHelper('the', OUTSIDE),
+                new TokenHelper('brown', OUTSIDE),
+                new TokenHelper('fox', OUTSIDE)]
 
         then:
-        expected == actual
+        actual.equals(expected)
     }
 
     def "English sentence with words, numbers and spaces"() {
@@ -213,21 +212,22 @@ public class TaggedTokenizerTest extends Specification {
         when:
         List actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('the', DEFAULT_TYPE),
-                new TokenHelper('11', DEFAULT_TYPE),
-                new TokenHelper('foxes', DEFAULT_TYPE)]
+                new TokenHelper('the', OUTSIDE),
+                new TokenHelper('11', OUTSIDE),
+                new TokenHelper('foxes', OUTSIDE)]
 
         then:
-        expected == actual
+        actual.equals(expected)
     }
 
     private List<TokenHelper> tokenize(String text) {
         List<TokenHelper> tokens = new ArrayList<TokenHelper>();
         tokenizer = new TaggedTokenizer(Version.LUCENE_CURRENT, new StringReader(text))
-        TermAttribute termAtt = tokenizer.getAttribute(TermAttribute.class);
-        TypeAttribute typeAtt = tokenizer.getAttribute(TypeAttribute.class);
+        CharTermAttribute termAtt = tokenizer.getAttribute(CharTermAttribute.class);
+        EntityAttribute entityAtt = tokenizer.getAttribute(EntityAttribute.class);
         while (tokenizer.incrementToken()) {
-            TokenHelper token = new TokenHelper(termAtt.term(), typeAtt.type())
+            String term = termAtt.subSequence(0, termAtt.length());
+            TokenHelper token = new TokenHelper(term, (EntityAttribute) entityAtt.clone())
             tokens.add(token);
         }
         return tokens

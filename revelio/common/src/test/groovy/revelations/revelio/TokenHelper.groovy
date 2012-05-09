@@ -6,18 +6,30 @@ package revelations.revelio
  */
 public class TokenHelper {
     public String token;
-    public String type;
+    public EntityAttribute entityType;
+    public String entityTypeS;
 
-    TokenHelper(token, type) {
+    TokenHelper(String token, EntityAttribute entityType) {
         this.token = token
-        this.type = type
+        this.entityType = entityType
+    }
+
+    TokenHelper(String token, String entityTypeS) {
+        this.token = token
+        this.entityTypeS = entityTypeS
     }
 
     public String toString() {
-        return "$token->$type";
+        String str = "$token->";
+        if (entityType){
+            str += entityType
+        }else if (entityTypeS){
+            str += entityTypeS
+        }
+        return str;
     }
 
     public boolean equals(Object that) {
-        return (token.equals(that.token) && type.equals(that.type))
+        return (token.equals(that.token) && entityType.toEntityTag().equals(that.entityTypeS))
     }
 }

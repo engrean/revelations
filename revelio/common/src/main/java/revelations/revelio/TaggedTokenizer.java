@@ -1,5 +1,7 @@
 package revelations.revelio;
 
+import static revelations.revelio.BilouTags.*;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.util.HashSet;
@@ -10,7 +12,6 @@ import com.ibm.icu.lang.UCharacterCategory;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.apache.lucene.util.CharacterUtils;
 import org.apache.lucene.util.Version;
 import org.apache.lucene.util.CharacterUtils.CharacterBuffer;
@@ -27,13 +28,11 @@ public final class TaggedTokenizer extends Tokenizer {
 
     private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
     private final OffsetAttribute offsetAtt = addAttribute(OffsetAttribute.class);
-    private final TypeAttribute typeAttribute = addAttribute(TypeAttribute.class);
+    private final EntityAttribute entityAtt = addAttribute(EntityAttribute.class);
 
     private final CharacterUtils charUtils;
     private final CharacterBuffer ioBuffer = CharacterUtils.newCharacterBuffer(IO_BUFFER_SIZE);
     private static final Set<String> entityTypes = new HashSet<String>();
-    public static final String ENTITY_TYPE = "entity";
-    public static final String PUNCTUATION_TYPE = "punctuation";
 
     static {
         entityTypes.add("<ENAMEX");
@@ -102,7 +101,7 @@ public final class TaggedTokenizer extends Tokenizer {
 
             if (isPunctuationChar(tokenHelper.currentType)) {
                 addChar(meta, meta.buffer, tokenHelper.c, tokenHelper.charCount);
-                typeAttribute.setType(PUNCTUATION_TYPE);
+                entityAtt.setIsPunctuationMark(true);
                 break;
             } else if (isTokenChar(tokenHelper.c)) {               // if it's a token char
                 addChar(meta, meta.buffer, tokenHelper.c, tokenHelper.charCount);
@@ -115,7 +114,7 @@ public final class TaggedTokenizer extends Tokenizer {
                     lookForTag(meta, tokenHelper);
                     break;
                 }else if (tokenHelper.currentType == UCharacterCategory.MATH_SYMBOL){
-                    typeAttribute.setType(PUNCTUATION_TYPE);
+                    entityAtt.setIsPunctuationMark(true);
                     break;
                 }
             } else if (meta.length > 0) { // at non-Letter, non-punctuation, but possibly math symbol [<,=,>] w/ chars
@@ -166,9 +165,9 @@ public final class TaggedTokenizer extends Tokenizer {
             meta.end = subMeta.end;
             meta.length = subMeta.length;
             bufferIndex += subMeta.length - 1;
-            typeAttribute.setType(ENTITY_TYPE);
+            entityAtt.setEntitySpanType(ENTITY_TYPE);
         }else{
-            typeAttribute.setType(PUNCTUATION_TYPE);
+            entityAtt.setIsPunctuationMark(true);
         }
     }
 
