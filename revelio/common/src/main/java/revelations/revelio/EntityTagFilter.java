@@ -49,6 +49,7 @@ public class EntityTagFilter extends TokenFilter {
     }
 
     protected void recordNextEntity(String[] subTokens){
+        //TODO: Need to add support for capitalization detection
         if (index < subTokens.length){
             String token = subTokens[index];
             if (subTokens.length == 1){

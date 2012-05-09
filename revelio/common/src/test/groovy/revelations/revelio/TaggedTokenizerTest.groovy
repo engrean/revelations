@@ -12,6 +12,7 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
  */
 public class TaggedTokenizerTest extends Specification {
     TaggedTokenizer tokenizer;
+//TODO: test for punctuation
 
     def "English sentence with less than mark, words, and spaces"() {
         given:

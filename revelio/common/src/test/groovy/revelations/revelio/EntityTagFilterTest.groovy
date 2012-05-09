@@ -12,7 +12,7 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
  * Date: 5/8/12
  */
 public class EntityTagFilterTest extends Specification {
-
+//TODO: test for punctuation
     def "ENAMEX type PERSON, using BIL and O"(){
         given:
         String sentence = 'the quick <ENAMEX TYPE="PERSON">Megan D. Fox</ENAMEX> is actually red.'
