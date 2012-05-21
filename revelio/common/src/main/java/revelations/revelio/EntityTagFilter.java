@@ -1,5 +1,6 @@
 package revelations.revelio;
 
+import com.ibm.icu.lang.UCharacter;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
@@ -9,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @author hargravescw
+ * @author Christian Hargraves
  *         Date: 5/8/12
  */
 public class EntityTagFilter extends TokenFilter {
@@ -33,14 +34,17 @@ public class EntityTagFilter extends TokenFilter {
             recordNextEntity(subTokens);
         }else if(input.incrementToken()){
             increment = true;
+            CharSequence token = termAttribute.subSequence(0, termAttribute.length());
             if (entityAtt.isEntity()) {
-                CharSequence token = termAttribute.subSequence(0, termAttribute.length());
                 Matcher matcher = regex.matcher(token);
                 if (matcher.matches()){
                     entityType = matcher.group(1);
+                    //TODO: I should use the whitespace tokenizer for this instead.
                     subTokens = matcher.group(2).split("\\s+");
                     recordNextEntity(subTokens);
                 }
+            }else{
+                checkCapitalization(token.toString(), entityAtt);
             }
         }else{
             increment = false;
@@ -67,9 +71,14 @@ public class EntityTagFilter extends TokenFilter {
                 buffer[i] = token.charAt(i);
             }
             termAttribute.setLength(token.length());
+            checkCapitalization(token, entityAtt);
             index++;
         }else{
             index = 0;
         }
+    }
+
+    protected static void checkCapitalization(String token, EntityAttribute entityAtt){
+        entityAtt.setIsCapitalized(UCharacter.isUUppercase(token.charAt(0)));
     }
 }
