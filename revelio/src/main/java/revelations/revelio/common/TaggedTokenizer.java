@@ -1,6 +1,6 @@
-package revelations.revelio;
+package revelations.revelio.common;
 
-import static revelations.revelio.BilouTags.*;
+import static revelations.revelio.common.BilouTags.*;
 
 import java.io.IOException;
 import java.io.Reader;

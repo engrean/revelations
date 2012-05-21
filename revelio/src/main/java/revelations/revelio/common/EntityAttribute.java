@@ -1,4 +1,4 @@
-package revelations.revelio;
+package revelations.revelio.common;
 
 import org.apache.lucene.util.Attribute;
 

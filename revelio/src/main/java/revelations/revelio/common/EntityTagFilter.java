@@ -1,4 +1,4 @@
-package revelations.revelio;
+package revelations.revelio.common;
 
 import com.ibm.icu.lang.UCharacter;
 import org.apache.lucene.analysis.TokenFilter;
@@ -66,9 +66,8 @@ public class EntityTagFilter extends TokenFilter {
                 entityAtt.setEntityLast();
             }
             entityAtt.setEntityType(entityType);
-            char[] buffer = termAttribute.buffer();
             for (int i = 0; i < token.length(); i++){
-                buffer[i] = token.charAt(i);
+                termAttribute.buffer()[i] = token.charAt(i);
             }
             termAttribute.setLength(token.length());
             checkCapitalization(token, entityAtt);

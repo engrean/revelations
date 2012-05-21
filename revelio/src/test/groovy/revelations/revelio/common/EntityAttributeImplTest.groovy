@@ -1,7 +1,6 @@
-package revelations.revelio;
+package revelations.revelio.common;
 
 import spock.lang.Specification
-import static revelations.revelio.BilouTags.*
 
 /**
  * @author Christian Hargraves

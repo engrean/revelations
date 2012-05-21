@@ -1,8 +1,8 @@
-package revelations.revelio;
+package revelations.revelio.common;
 import spock.lang.Specification
 import org.apache.lucene.util.Version
 
-import static revelations.revelio.BilouTags.*
+import static BilouTags.*
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
 
 /**

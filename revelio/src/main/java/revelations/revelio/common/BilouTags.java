@@ -1,4 +1,4 @@
-package revelations.revelio;
+package revelations.revelio.common;
 
 /**
  * @author Christian Hargraves

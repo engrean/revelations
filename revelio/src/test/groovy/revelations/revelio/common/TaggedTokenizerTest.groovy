@@ -1,10 +1,10 @@
-package revelations.revelio;
+package revelations.revelio.common;
 
 import spock.lang.Specification
 import org.apache.lucene.util.Version
 
-import static revelations.revelio.BilouTags.*
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import static BilouTags.*
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
 
 /**
  * @author Christian Hargraves
