@@ -2,7 +2,7 @@ package revelations.revelio;
 
 import spock.lang.Specification
 import org.apache.lucene.util.Version
-import static org.apache.lucene.analysis.tokenattributes.TypeAttribute.DEFAULT_TYPE;
+
 import static revelations.revelio.BilouTags.*
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
@@ -21,14 +21,14 @@ public class TaggedTokenizerTest extends Specification {
         when:
         List actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('the', OUTSIDE),
-                new TokenHelper('brown', OUTSIDE),
-                new TokenHelper('<', OUTSIDE, "PUNCTUATION"),
-                new TokenHelper('fox', OUTSIDE),
-                new TokenHelper('jumped', OUTSIDE),
-                new TokenHelper('at', OUTSIDE),
-                new TokenHelper('them', OUTSIDE),
-                new TokenHelper('.', OUTSIDE, "PUNCTUATION")]
+                new TokenTestHelper('the', OUTSIDE),
+                new TokenTestHelper('brown', OUTSIDE),
+                new TokenTestHelper('<', OUTSIDE, "PUNCTUATION"),
+                new TokenTestHelper('fox', OUTSIDE),
+                new TokenTestHelper('jumped', OUTSIDE),
+                new TokenTestHelper('at', OUTSIDE),
+                new TokenTestHelper('them', OUTSIDE),
+                new TokenTestHelper('.', OUTSIDE, "PUNCTUATION")]
 
         then:
         actual.equals(expected)
@@ -41,14 +41,14 @@ public class TaggedTokenizerTest extends Specification {
         when:
         List actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('the', OUTSIDE),
-                new TokenHelper('brown', OUTSIDE),
-                new TokenHelper('>', OUTSIDE, "PUNCTUATION"),
-                new TokenHelper('fox', OUTSIDE),
-                new TokenHelper('jumped', OUTSIDE),
-                new TokenHelper('at', OUTSIDE),
-                new TokenHelper('them', OUTSIDE),
-                new TokenHelper('.', OUTSIDE, "PUNCTUATION")]
+                new TokenTestHelper('the', OUTSIDE),
+                new TokenTestHelper('brown', OUTSIDE),
+                new TokenTestHelper('>', OUTSIDE, "PUNCTUATION"),
+                new TokenTestHelper('fox', OUTSIDE),
+                new TokenTestHelper('jumped', OUTSIDE),
+                new TokenTestHelper('at', OUTSIDE),
+                new TokenTestHelper('them', OUTSIDE),
+                new TokenTestHelper('.', OUTSIDE, "PUNCTUATION")]
 
         then:
         actual.equals(expected)
@@ -61,14 +61,14 @@ public class TaggedTokenizerTest extends Specification {
         when:
         List actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('the', OUTSIDE),
-                new TokenHelper('brown', OUTSIDE),
-                new TokenHelper('=', OUTSIDE, "PUNCTUATION"),
-                new TokenHelper('fox', OUTSIDE),
-                new TokenHelper('jumped', OUTSIDE),
-                new TokenHelper('at', OUTSIDE),
-                new TokenHelper('them', OUTSIDE),
-                new TokenHelper('.', OUTSIDE, "PUNCTUATION")]
+                new TokenTestHelper('the', OUTSIDE),
+                new TokenTestHelper('brown', OUTSIDE),
+                new TokenTestHelper('=', OUTSIDE, "PUNCTUATION"),
+                new TokenTestHelper('fox', OUTSIDE),
+                new TokenTestHelper('jumped', OUTSIDE),
+                new TokenTestHelper('at', OUTSIDE),
+                new TokenTestHelper('them', OUTSIDE),
+                new TokenTestHelper('.', OUTSIDE, "PUNCTUATION")]
 
         then:
         actual.equals(expected)
@@ -81,13 +81,13 @@ public class TaggedTokenizerTest extends Specification {
         when:
         List actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('the', OUTSIDE),
-                new TokenHelper('brown', OUTSIDE),
-                new TokenHelper('fox', OUTSIDE),
-                new TokenHelper('jumped', OUTSIDE),
-                new TokenHelper('at', OUTSIDE),
-                new TokenHelper('<TIMEX TYPE="TIME">3:00PM</TIMEX>', ENTITY_TYPE),
-                new TokenHelper('.', OUTSIDE, "PUNCTUATION")]
+                new TokenTestHelper('the', OUTSIDE),
+                new TokenTestHelper('brown', OUTSIDE),
+                new TokenTestHelper('fox', OUTSIDE),
+                new TokenTestHelper('jumped', OUTSIDE),
+                new TokenTestHelper('at', OUTSIDE),
+                new TokenTestHelper('<TIMEX TYPE="TIME">3:00PM</TIMEX>', ENTITY_TYPE),
+                new TokenTestHelper('.', OUTSIDE, "PUNCTUATION")]
 
         then:
         actual.equals(expected)
@@ -100,13 +100,13 @@ public class TaggedTokenizerTest extends Specification {
         when:
         List actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('the', OUTSIDE),
-                new TokenHelper('brown', OUTSIDE),
-                new TokenHelper('fox', OUTSIDE),
-                new TokenHelper('jumped', OUTSIDE),
-                new TokenHelper('at', OUTSIDE),
-                new TokenHelper('<TIMEX TYPE="TIME">3:00 PM</TIMEX>', ENTITY_TYPE),
-                new TokenHelper('.', OUTSIDE, "PUNCTUATION")]
+                new TokenTestHelper('the', OUTSIDE),
+                new TokenTestHelper('brown', OUTSIDE),
+                new TokenTestHelper('fox', OUTSIDE),
+                new TokenTestHelper('jumped', OUTSIDE),
+                new TokenTestHelper('at', OUTSIDE),
+                new TokenTestHelper('<TIMEX TYPE="TIME">3:00 PM</TIMEX>', ENTITY_TYPE),
+                new TokenTestHelper('.', OUTSIDE, "PUNCTUATION")]
 
         then:
         actual.equals(expected)
@@ -119,12 +119,12 @@ public class TaggedTokenizerTest extends Specification {
         when:
         List actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('the', OUTSIDE),
-                new TokenHelper('brown', OUTSIDE),
-                new TokenHelper('fox', OUTSIDE),
-                new TokenHelper('is', OUTSIDE),
-                new TokenHelper('<NUMEX TYPE="MONEY">$12</NUMEX>', ENTITY_TYPE),
-                new TokenHelper('.', OUTSIDE, "PUNCTUATION")]
+                new TokenTestHelper('the', OUTSIDE),
+                new TokenTestHelper('brown', OUTSIDE),
+                new TokenTestHelper('fox', OUTSIDE),
+                new TokenTestHelper('is', OUTSIDE),
+                new TokenTestHelper('<NUMEX TYPE="MONEY">$12</NUMEX>', ENTITY_TYPE),
+                new TokenTestHelper('.', OUTSIDE, "PUNCTUATION")]
 
         then:
         actual.equals(expected)
@@ -137,15 +137,15 @@ public class TaggedTokenizerTest extends Specification {
         when:
         List actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('the', OUTSIDE),
-                new TokenHelper('brown', OUTSIDE),
-                new TokenHelper('fox', OUTSIDE),
-                new TokenHelper(',', OUTSIDE, "PUNCTUATION"),
-                new TokenHelper('<ENAMEX TYPE="PERSON">Charlie Brown</ENAMEX>', ENTITY_TYPE),
-                new TokenHelper(',', OUTSIDE, "PUNCTUATION"),
-                new TokenHelper('eats', OUTSIDE),
-                new TokenHelper('rats', OUTSIDE),
-                new TokenHelper('.', OUTSIDE, "PUNCTUATION")]
+                new TokenTestHelper('the', OUTSIDE),
+                new TokenTestHelper('brown', OUTSIDE),
+                new TokenTestHelper('fox', OUTSIDE),
+                new TokenTestHelper(',', OUTSIDE, "PUNCTUATION"),
+                new TokenTestHelper('<ENAMEX TYPE="PERSON">Charlie Brown</ENAMEX>', ENTITY_TYPE),
+                new TokenTestHelper(',', OUTSIDE, "PUNCTUATION"),
+                new TokenTestHelper('eats', OUTSIDE),
+                new TokenTestHelper('rats', OUTSIDE),
+                new TokenTestHelper('.', OUTSIDE, "PUNCTUATION")]
 
         then:
         actual.equals(expected)
@@ -158,15 +158,15 @@ public class TaggedTokenizerTest extends Specification {
         when:
         List actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('the', OUTSIDE),
-                new TokenHelper('brown', OUTSIDE),
-                new TokenHelper('fox', OUTSIDE),
-                new TokenHelper(',', OUTSIDE, "PUNCTUATION"),
-                new TokenHelper('<ENAMEX TYPE="PERSON">Charly</ENAMEX>', ENTITY_TYPE),
-                new TokenHelper(',', OUTSIDE, "PUNCTUATION"),
-                new TokenHelper('eats', OUTSIDE),
-                new TokenHelper('rats', OUTSIDE),
-                new TokenHelper('.', OUTSIDE, "PUNCTUATION")]
+                new TokenTestHelper('the', OUTSIDE),
+                new TokenTestHelper('brown', OUTSIDE),
+                new TokenTestHelper('fox', OUTSIDE),
+                new TokenTestHelper(',', OUTSIDE, "PUNCTUATION"),
+                new TokenTestHelper('<ENAMEX TYPE="PERSON">Charly</ENAMEX>', ENTITY_TYPE),
+                new TokenTestHelper(',', OUTSIDE, "PUNCTUATION"),
+                new TokenTestHelper('eats', OUTSIDE),
+                new TokenTestHelper('rats', OUTSIDE),
+                new TokenTestHelper('.', OUTSIDE, "PUNCTUATION")]
 
         then:
         actual.equals(expected)
@@ -179,13 +179,13 @@ public class TaggedTokenizerTest extends Specification {
         when:
         List actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('the', OUTSIDE),
-                new TokenHelper('(', OUTSIDE, "PUNCTUATION"),
-                new TokenHelper('brown', OUTSIDE),
-                new TokenHelper(')', OUTSIDE, "PUNCTUATION"),
-                new TokenHelper(',', OUTSIDE, "PUNCTUATION"),
-                new TokenHelper('fox', OUTSIDE),
-                new TokenHelper('!', OUTSIDE, "PUNCTUATION")]
+                new TokenTestHelper('the', OUTSIDE),
+                new TokenTestHelper('(', OUTSIDE, "PUNCTUATION"),
+                new TokenTestHelper('brown', OUTSIDE),
+                new TokenTestHelper(')', OUTSIDE, "PUNCTUATION"),
+                new TokenTestHelper(',', OUTSIDE, "PUNCTUATION"),
+                new TokenTestHelper('fox', OUTSIDE),
+                new TokenTestHelper('!', OUTSIDE, "PUNCTUATION")]
 
         then:
         actual.equals(expected)
@@ -198,9 +198,9 @@ public class TaggedTokenizerTest extends Specification {
         when:
         List actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('the', OUTSIDE),
-                new TokenHelper('brown', OUTSIDE),
-                new TokenHelper('fox', OUTSIDE)]
+                new TokenTestHelper('the', OUTSIDE),
+                new TokenTestHelper('brown', OUTSIDE),
+                new TokenTestHelper('fox', OUTSIDE)]
 
         then:
         actual.equals(expected)
@@ -213,22 +213,22 @@ public class TaggedTokenizerTest extends Specification {
         when:
         List actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('the', OUTSIDE),
-                new TokenHelper('11', OUTSIDE),
-                new TokenHelper('foxes', OUTSIDE)]
+                new TokenTestHelper('the', OUTSIDE),
+                new TokenTestHelper('11', OUTSIDE),
+                new TokenTestHelper('foxes', OUTSIDE)]
 
         then:
         actual.equals(expected)
     }
 
-    private List<TokenHelper> tokenize(String text) {
-        List<TokenHelper> tokens = new ArrayList<TokenHelper>();
+    private List<TokenTestHelper> tokenize(String text) {
+        List<TokenTestHelper> tokens = new ArrayList<TokenTestHelper>();
         tokenizer = new TaggedTokenizer(Version.LUCENE_CURRENT, new StringReader(text))
         CharTermAttribute termAtt = tokenizer.getAttribute(CharTermAttribute.class);
         EntityAttribute entityAtt = tokenizer.getAttribute(EntityAttribute.class);
         while (tokenizer.incrementToken()) {
             String term = termAtt.subSequence(0, termAtt.length());
-            TokenHelper token = new TokenHelper(term, (EntityAttribute) entityAtt.clone())
+            TokenTestHelper token = new TokenTestHelper(term, (EntityAttribute) entityAtt.clone())
             tokens.add(token);
         }
         return tokens

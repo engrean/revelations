@@ -1,12 +1,9 @@
 package revelations.revelio;
 import spock.lang.Specification
 import org.apache.lucene.util.Version
-import org.apache.lucene.analysis.tokenattributes.TermAttribute
-import org.apache.lucene.analysis.tokenattributes.TypeAttribute
 
 import static revelations.revelio.BilouTags.*
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
-import com.ibm.icu.text.BreakIterator;
 
 /**
  * @author Christian Hargraves
@@ -14,7 +11,37 @@ import com.ibm.icu.text.BreakIterator;
  */
 public class EntityTagFilterTest extends Specification {
 
-    def "isCapitalized sets attribute to false with punctuation word"(){
+    def "isCapitalized sets attribute to false with null attribute"(){
+        when:
+        EntityTagFilter.checkCapitalization('Test', null)
+
+        then:
+        notThrown(NullPointerException)
+    }
+
+    def "isCapitalized sets attribute to false with null token"(){
+        given:
+        EntityAttribute entityAttribute = new EntityAttributeImpl();
+
+        when:
+        EntityTagFilter.checkCapitalization(null, entityAttribute)
+
+        then:
+        !entityAttribute.isCapitalized()
+    }
+
+    def "isCapitalized sets attribute to false with whitespace"(){
+        given:
+        EntityAttribute entityAttribute = new EntityAttributeImpl();
+
+        when:
+        EntityTagFilter.checkCapitalization(" ", entityAttribute)
+
+        then:
+        !entityAttribute.isCapitalized()
+    }
+
+    def "isCapitalized sets attribute to false with punctuation"(){
         given:
         EntityAttribute entityAttribute = new EntityAttributeImpl();
 
@@ -52,17 +79,17 @@ public class EntityTagFilterTest extends Specification {
         String sentence = 'The quick <ENAMEX TYPE="PERSON">Megan D. Fox</ENAMEX> is actually red.'
 
         when:
-        List<TokenHelper> actual = tokenize(sentence)
+        List<TokenTestHelper> actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('The', OUTSIDE, "CAPITALIZED"),
-                new TokenHelper('quick', OUTSIDE),
-                new TokenHelper('Megan', "${BEGIN}-PERSON", "CAPITALIZED"),
-                new TokenHelper('D.', "${INSIDE}-PERSON", "CAPITALIZED"),
-                new TokenHelper('Fox', "${LAST}-PERSON", "CAPITALIZED"),
-                new TokenHelper('is', OUTSIDE),
-                new TokenHelper('actually', OUTSIDE),
-                new TokenHelper('red', OUTSIDE),
-                new TokenHelper('.', OUTSIDE, "PUNCTUATION")]
+                new TokenTestHelper('The', OUTSIDE, "CAPITALIZED"),
+                new TokenTestHelper('quick', OUTSIDE),
+                new TokenTestHelper('Megan', "${BEGIN}-PERSON", "CAPITALIZED"),
+                new TokenTestHelper('D.', "${INSIDE}-PERSON", "CAPITALIZED"),
+                new TokenTestHelper('Fox', "${LAST}-PERSON", "CAPITALIZED"),
+                new TokenTestHelper('is', OUTSIDE),
+                new TokenTestHelper('actually', OUTSIDE),
+                new TokenTestHelper('red', OUTSIDE),
+                new TokenTestHelper('.', OUTSIDE, "PUNCTUATION")]
 
         then:
         actual.equals(expected)
@@ -73,15 +100,15 @@ public class EntityTagFilterTest extends Specification {
         String sentence = 'The quick <ENAMEX TYPE="PERSON">Fox</ENAMEX> is actually red.'
 
         when:
-        List<TokenHelper> actual = tokenize(sentence)
+        List<TokenTestHelper> actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('The', OUTSIDE, "CAPITALIZED"),
-                new TokenHelper('quick', OUTSIDE),
-                new TokenHelper('Fox', "${UNIT}-PERSON", "CAPITALIZED"),
-                new TokenHelper('is', OUTSIDE),
-                new TokenHelper('actually', OUTSIDE),
-                new TokenHelper('red', OUTSIDE),
-                new TokenHelper('.', OUTSIDE, "PUNCTUATION")]
+                new TokenTestHelper('The', OUTSIDE, "CAPITALIZED"),
+                new TokenTestHelper('quick', OUTSIDE),
+                new TokenTestHelper('Fox', "${UNIT}-PERSON", "CAPITALIZED"),
+                new TokenTestHelper('is', OUTSIDE),
+                new TokenTestHelper('actually', OUTSIDE),
+                new TokenTestHelper('red', OUTSIDE),
+                new TokenTestHelper('.', OUTSIDE, "PUNCTUATION")]
 
         then:
         actual.equals(expected)
@@ -92,29 +119,29 @@ public class EntityTagFilterTest extends Specification {
         String sentence = "The quick brown fox is actually red."
 
         when:
-        List<TokenHelper> actual = tokenize(sentence)
+        List<TokenTestHelper> actual = tokenize(sentence)
         def expected = [
-                new TokenHelper('The', OUTSIDE, "CAPITALIZED"),
-                new TokenHelper('quick', OUTSIDE),
-                new TokenHelper('brown', OUTSIDE),
-                new TokenHelper('fox', OUTSIDE),
-                new TokenHelper('is', OUTSIDE),
-                new TokenHelper('actually', OUTSIDE),
-                new TokenHelper('red', OUTSIDE),
-                new TokenHelper('.', OUTSIDE, "PUNCTUATION")]
+                new TokenTestHelper('The', OUTSIDE, "CAPITALIZED"),
+                new TokenTestHelper('quick', OUTSIDE),
+                new TokenTestHelper('brown', OUTSIDE),
+                new TokenTestHelper('fox', OUTSIDE),
+                new TokenTestHelper('is', OUTSIDE),
+                new TokenTestHelper('actually', OUTSIDE),
+                new TokenTestHelper('red', OUTSIDE),
+                new TokenTestHelper('.', OUTSIDE, "PUNCTUATION")]
 
         then:
         actual.equals(expected)
     }
 
-    private List<TokenHelper> tokenize(String text) {
-        List<TokenHelper> tokens = new ArrayList<TokenHelper>();
+    private List<TokenTestHelper> tokenize(String text) {
+        List<TokenTestHelper> tokens = new ArrayList<TokenTestHelper>();
         EntityTagFilter tokenizer = new EntityTagFilter(new TaggedTokenizer(Version.LUCENE_CURRENT, new StringReader(text)))
         CharTermAttribute termAtt = tokenizer.getAttribute(CharTermAttribute.class);
         EntityAttribute entityAtt = tokenizer.getAttribute(EntityAttribute.class);
         while (tokenizer.incrementToken()) {
             String term = termAtt.subSequence(0, termAtt.length());
-            TokenHelper token = new TokenHelper(term, (EntityAttribute)entityAtt.clone())
+            TokenTestHelper token = new TokenTestHelper(term, (EntityAttribute)entityAtt.clone())
             tokens.add(token);
         }
         return tokens

@@ -79,6 +79,9 @@ public class EntityTagFilter extends TokenFilter {
     }
 
     protected static void checkCapitalization(String token, EntityAttribute entityAtt){
-        entityAtt.setIsCapitalized(UCharacter.isUUppercase(token.charAt(0)));
+        if (token != null && entityAtt != null){
+            int codePoint = UCharacter.codePointAt(token, 0);
+            entityAtt.setIsCapitalized(UCharacter.isUUppercase(codePoint));
+        }
     }
 }

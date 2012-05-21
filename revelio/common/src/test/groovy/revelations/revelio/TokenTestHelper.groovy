@@ -4,23 +4,23 @@ package revelations.revelio
  * @author Christian Hargraves
  * Date: 5/8/12
  */
-public class TokenHelper {
+public class TokenTestHelper {
     public String token;
     public EntityAttribute entityType;
     public String entityTypeS;
     public String metaData;
 
-    TokenHelper(String token, EntityAttribute entityType) {
+    TokenTestHelper(String token, EntityAttribute entityType) {
         this.token = token
         this.entityType = entityType
     }
 
-    TokenHelper(String token, String entityTypeS) {
+    TokenTestHelper(String token, String entityTypeS) {
         this.token = token
         this.entityTypeS = entityTypeS
     }
 
-    TokenHelper(String token, String entityTypeS, String metaData) {
+    TokenTestHelper(String token, String entityTypeS, String metaData) {
         this.token = token
         this.entityTypeS = entityTypeS
         this.metaData = metaData
