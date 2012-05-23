@@ -84,7 +84,7 @@ public final class TaggedTokenizer extends Tokenizer {
             if (bufferIndex >= dataLen) {
                 offset += dataLen;
                 if (!charUtils.fill(ioBuffer, input)) { // read supplementary char aware with CharacterUtils
-                    dataLen = 0; // so next offset += dataLen won't decrement offset
+                    dataLen = 0; // so next startOffset += dataLen won't decrement startOffset
                     if (meta.length > 0) {
                         break;
                     } else {
@@ -130,17 +130,16 @@ public final class TaggedTokenizer extends Tokenizer {
 
     private void lookForTag(TokenMetaData meta, TokenHelper tokenHelper) {
         //TODO: We shouldn't need a token. This is just me being lazy...
-        //TODO: Need to add support for capitalization detection
 
         StringBuilder token = new StringBuilder();
         token.appendCodePoint(tokenHelper.c);
         int index = bufferIndex;
         final TokenMetaData subMeta = new TokenMetaData(termAtt.buffer(), meta.start, meta.length, meta.end);
-        while (true) {
+        while (index < ioBuffer.getLength()) {
             final TokenHelper subTokenHelper = new TokenHelper(index++);
             addChar(subMeta, meta.buffer, subTokenHelper.c, subTokenHelper.charCount);
             if (!meta.isPossibleEntityEnd && meta.isEntityStart &&
-                    subTokenHelper.chars[0] == '<' && subTokenHelper.nchars[0] == '/') {
+                    subTokenHelper.chars[0] == '<' && subTokenHelper.nchars.length > 0 && subTokenHelper.nchars[0] == '/') {
                 token.appendCodePoint(subTokenHelper.c);
                 meta.isPossibleEntityEnd = true;
                 meta.isEntityStart = false;
@@ -187,7 +186,7 @@ public final class TaggedTokenizer extends Tokenizer {
 
     @Override
     public final void end() {
-        // set final offset
+        // set final startOffset
         offsetAtt.setOffset(finalOffset, finalOffset);
     }
 
@@ -229,14 +228,22 @@ public final class TaggedTokenizer extends Tokenizer {
         final int nextType;
 
         public TokenHelper(int bufferIndex) {
-            c = charUtils.codePointAt(ioBuffer.getBuffer(), bufferIndex);
-            nc = charUtils.codePointAt(ioBuffer.getBuffer(), bufferIndex + 1);
+            c = UCharacter.codePointAt(ioBuffer.getBuffer(), bufferIndex);
             chars = UCharacter.toChars(c);
-            nchars = UCharacter.toChars(nc);
             charCount = UCharacter.charCount(c);
-            ncharCount = UCharacter.charCount(nc);
             currentType = UCharacter.getType(c);
-            nextType = UCharacter.getType(nc);
+            if (ioBuffer.getLength() > (bufferIndex + 1)){
+                nc = UCharacter.codePointAt(ioBuffer.getBuffer(), bufferIndex + 1);
+                nchars = UCharacter.toChars(nc);
+                ncharCount = UCharacter.charCount(nc);
+                nextType = UCharacter.getType(nc);
+            }else{
+                nc = -1;
+                nchars = new char[0];
+                ncharCount = 0;
+                nextType = -1;
+            }
+
         }
 
     }

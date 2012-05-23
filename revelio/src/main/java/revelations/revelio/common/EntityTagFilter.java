@@ -41,6 +41,7 @@ public class EntityTagFilter extends TokenFilter {
                     entityType = matcher.group(1);
                     //TODO: I should use the whitespace tokenizer for this instead.
                     subTokens = matcher.group(2).split("\\s+");
+                    index = 0;
                     recordNextEntity(subTokens);
                 }
             }else{

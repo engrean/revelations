@@ -74,6 +74,74 @@ public class EntityTagFilterTest extends Specification {
         !entityAttribute.isCapitalized()
     }
 
+    def "ENAMEX type PERSON, using all of BILOU part3"(){
+        given:
+        String sentence = '<ENAMEX TYPE="WORK_OF_ART">Blue</ENAMEX> was directed in <TIMEX TYPE="DATE">1986</TIMEX>'
+
+        when:
+        List<TokenTestHelper> actual = tokenize(sentence)
+        def expected = [
+                new TokenTestHelper('Blue', "${UNIT}-WORK_OF_ART", "CAPITALIZED"),
+                new TokenTestHelper('was', OUTSIDE),
+                new TokenTestHelper('directed', OUTSIDE),
+                new TokenTestHelper('in', OUTSIDE),
+                new TokenTestHelper('1986', "${UNIT}-DATE")]
+
+        then:
+        actual.equals(expected)
+    }
+
+    def "ENAMEX type PERSON, using all of BILOU part2"(){
+        given:
+        String sentence = '<ENAMEX TYPE="WORK_OF_ART">Blue Velvet</ENAMEX> is a <TIMEX TYPE="DATE">1986</TIMEX> <ENAMEX TYPE="ITE.gpe">American</ENAMEX> mystery film.'
+
+        when:
+        List<TokenTestHelper> actual = tokenize(sentence)
+        def expected = [
+                new TokenTestHelper('Blue', "${BEGIN}-WORK_OF_ART", "CAPITALIZED"),
+                new TokenTestHelper('Velvet', "${LAST}-WORK_OF_ART", "CAPITALIZED"),
+                new TokenTestHelper('is', OUTSIDE),
+                new TokenTestHelper('a', OUTSIDE),
+                new TokenTestHelper('1986', "${UNIT}-DATE"),
+                new TokenTestHelper('American', "${UNIT}-ITE.gpe", "CAPITALIZED"),
+                new TokenTestHelper('mystery', OUTSIDE),
+                new TokenTestHelper('film', OUTSIDE),
+                new TokenTestHelper('.', OUTSIDE, "PUNCTUATION")]
+
+        then:
+        actual.equals(expected)
+    }
+
+    def "ENAMEX type PERSON, using all of BILOU"(){
+        given:
+        String sentence = 'The <ENAMEX TYPE="WORK_OF_ART">Blue Velvet</ENAMEX> is a <TIMEX TYPE="DATE">1986</TIMEX> <ENAMEX TYPE="ITE.gpe">American</ENAMEX> mystery film written and directed by <ENAMEX TYPE="PERSON">David Lynch</ENAMEX>.'
+
+        when:
+        List<TokenTestHelper> actual = tokenize(sentence)
+        def expected = [
+                new TokenTestHelper('The', OUTSIDE, "CAPITALIZED"),
+                new TokenTestHelper('Blue', "${BEGIN}-WORK_OF_ART", "CAPITALIZED"),
+                new TokenTestHelper('Velvet', "${LAST}-WORK_OF_ART", "CAPITALIZED"),
+                new TokenTestHelper('is', OUTSIDE),
+                new TokenTestHelper('a', OUTSIDE),
+                new TokenTestHelper('1986', "${UNIT}-DATE"),
+                new TokenTestHelper('American', "${UNIT}-ITE.gpe", "CAPITALIZED"),
+                new TokenTestHelper('mystery', OUTSIDE),
+                new TokenTestHelper('film', OUTSIDE),
+                new TokenTestHelper('written', OUTSIDE),
+                new TokenTestHelper('and', OUTSIDE),
+                new TokenTestHelper('directed', OUTSIDE),
+                new TokenTestHelper('by', OUTSIDE),
+                new TokenTestHelper('David', "${BEGIN}-PERSON", "CAPITALIZED"),
+                new TokenTestHelper('Lynch', "${LAST}-PERSON", "CAPITALIZED"),
+                new TokenTestHelper('.', OUTSIDE, "PUNCTUATION")]
+
+        then:
+        actual.equals(expected)
+    }
+
+
+
     def "ENAMEX type PERSON, using BIL and O"(){
         given:
         String sentence = 'The quick <ENAMEX TYPE="PERSON">Megan D. Fox</ENAMEX> is actually red.'
